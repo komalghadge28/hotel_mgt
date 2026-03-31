@@ -1,0 +1,68 @@
+[debug] [2026-03-31T07:00:33.519Z] ----------------------------------------------------------------------
+[debug] [2026-03-31T07:00:33.524Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2026-03-31T07:00:33.525Z] CLI Version:   15.12.0
+[debug] [2026-03-31T07:00:33.525Z] Platform:      win32
+[debug] [2026-03-31T07:00:33.525Z] Node Version:  v22.12.0
+[debug] [2026-03-31T07:00:33.526Z] Time:          Tue Mar 31 2026 12:30:33 GMT+0530 (India Standard Time)
+[debug] [2026-03-31T07:00:33.527Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-03-31T07:00:33.531Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-03-31T07:00:35.412Z] Error: Cannot find module '@electric-sql/pglite'
+Require stack:
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\emulator\dataconnect\pgliteServer.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\emulator\dataconnectEmulator.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\init\features\dataconnect\sdk.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\init\features\dataconnect\index.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\init\features\index.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\init\index.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\commands\init.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\commands\index.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\index.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\cli.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1249:15)
+    at Function._load (node:internal/modules/cjs/loader:1075:27)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:219:24)
+    at Module.require (node:internal/modules/cjs/loader:1340:12)
+    at require (node:internal/modules/helpers:138:16)
+    at Object.<anonymous> (C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\emulator\dataconnect\pgliteServer.js:5:18)
+    at Module._compile (node:internal/modules/cjs/loader:1565:14)
+    at Object..js (node:internal/modules/cjs/loader:1708:10)
+    at Module.load (node:internal/modules/cjs/loader:1318:32)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-03-31T07:01:38.976Z] ----------------------------------------------------------------------
+[debug] [2026-03-31T07:01:38.980Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init hosting
+[debug] [2026-03-31T07:01:38.980Z] CLI Version:   15.12.0
+[debug] [2026-03-31T07:01:38.980Z] Platform:      win32
+[debug] [2026-03-31T07:01:38.981Z] Node Version:  v22.12.0
+[debug] [2026-03-31T07:01:38.981Z] Time:          Tue Mar 31 2026 12:31:38 GMT+0530 (India Standard Time)
+[debug] [2026-03-31T07:01:38.981Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-03-31T07:01:38.984Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-03-31T07:01:39.810Z] Error: Cannot find module '@electric-sql/pglite'
+Require stack:
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\emulator\dataconnect\pgliteServer.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\emulator\dataconnectEmulator.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\init\features\dataconnect\sdk.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\init\features\dataconnect\index.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\init\features\index.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\init\index.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\commands\init.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\commands\index.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\index.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\cli.js
+- C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1249:15)
+    at Function._load (node:internal/modules/cjs/loader:1075:27)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:219:24)
+    at Module.require (node:internal/modules/cjs/loader:1340:12)
+    at require (node:internal/modules/helpers:138:16)
+    at Object.<anonymous> (C:\Users\dell\AppData\Roaming\npm\node_modules\firebase-tools\lib\emulator\dataconnect\pgliteServer.js:5:18)
+    at Module._compile (node:internal/modules/cjs/loader:1565:14)
+    at Object..js (node:internal/modules/cjs/loader:1708:10)
+    at Module.load (node:internal/modules/cjs/loader:1318:32)
+[error] 
+[error] Error: An unexpected error has occurred.
