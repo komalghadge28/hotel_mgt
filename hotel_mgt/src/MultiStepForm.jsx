@@ -532,45 +532,106 @@ input:focus, select:focus {
         {step === 3 && (
           <div>
             <h3>Identity Documents</h3>
-            <p style={{fontSize:'13px', color:'#6b7280', marginBottom:'20px'}}>Upload identification for the primary guest.</p>
             <div className="doc-grid">
-              {Object.keys(documents).map((field) => (
-                <div key={field} style={{background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px dashed #cbd5e1'}}>
-                  <label style={{fontSize:'12px', fontWeight:'700', textTransform:'uppercase', color: '#475569'}}>
-                    {field.replace(/([A-Z])/g, ' $1')}
-                  </label>
-                  
-                  <label className="upload-label">
-                    <span>📷 {documents[field] ? "Replace Image" : "Capture or Upload"}</span>
-                    <input 
-  type="file" 
-  accept="image/*"
-  capture={false}
-  onChange={(e) => handleFileSelect(e.target.files[0], field)} 
-  style={{display: 'none'}} 
-/>
-                  </label>
+  {Object.keys(documents).map((field) => (
+    <div
+      key={field}
+      style={{
+        background: "#f8fafc",
+        padding: "12px",
+        borderRadius: "8px",
+        border: "1px dashed #cbd5e1",
+      }}
+    >
+      <label
+        style={{
+          fontSize: "12px",
+          fontWeight: "700",
+          textTransform: "uppercase",
+          color: "#475569",
+        }}
+      >
+        {field.replace(/([A-Z])/g, " $1")}
+      </label>
 
-                  {documents[field] && (
-                    <div style={{display:'flex', alignItems:'center', justifyContent: 'space-between', marginTop: '8px'}}>
-                        <span style={{color:'#10b981', fontSize:'11px', fontWeight:'600'}}>✓ Ready</span>
-                        <div style={{display:'flex', gap:'5px'}}>
-                          <button 
-                            className="edit-btn" 
-                            onClick={() => setPreview(URL.createObjectURL(documents[field]))}
-                          >👁️ View</button>
-                          <button 
-                            className="edit-btn" 
-                            style={{background: '#fff7ed', color: '#c2410c', borderColor: '#ffedd5'}}
-                            onClick={() => handleEdit(field)}
-                          >✏️ Edit</button>
-                        </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-            
+      {/* ✅ CAMERA + GALLERY BUTTONS */}
+      <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
+        
+        {/* CAMERA */}
+        <label className="upload-label" style={{ flex: 1 }}>
+          📷 Camera
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={(e) =>
+              handleFileSelect(e.target.files[0], field)
+            }
+            style={{ display: "none" }}
+          />
+        </label>
+
+        {/* GALLERY */}
+        <label className="upload-label" style={{ flex: 1 }}>
+          🖼️ Gallery
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              handleFileSelect(e.target.files[0], field)
+            }
+            style={{ display: "none" }}
+          />
+        </label>
+      </div>
+
+      {/* ✅ FILE STATUS + ACTIONS */}
+      {documents[field] && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginTop: "8px",
+          }}
+        >
+          <span
+            style={{
+              color: "#10b981",
+              fontSize: "11px",
+              fontWeight: "600",
+            }}
+          >
+            ✓ Ready
+          </span>
+
+          <div style={{ display: "flex", gap: "5px" }}>
+            <button
+              className="edit-btn"
+              onClick={() =>
+                setPreview(URL.createObjectURL(documents[field]))
+              }
+            >
+              👁️ View
+            </button>
+
+            <button
+              className="edit-btn"
+              style={{
+                background: "#fff7ed",
+                color: "#c2410c",
+                borderColor: "#ffedd5",
+              }}
+              onClick={() => handleEdit(field)}
+            >
+              ✏️ Edit
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  ))}
+</div>
             <div style={{display:'flex', gap:'15px', marginTop: '20px'}}>
               <button className="btn btn-secondary" style={{flex:1}} onClick={() => setStep(2)}>Back</button>
               <button 
