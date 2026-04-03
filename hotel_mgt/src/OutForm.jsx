@@ -120,7 +120,9 @@ function OutForm() {
         return;
       }
       const bookingData = snap.data();
-      const updatedEntries = bookingData.entries.filter((_, i) => i !== Number(entryIdx));
+      const updatedEntries = bookingData.entries.filter(
+        (_, i) => i !== Number(entryIdx)
+      );
       const { subtotal, gst, total } = calculateBill();
 
       await addDoc(collection(db, "adminPanel"), {
@@ -148,7 +150,8 @@ function OutForm() {
     }
   };
 
-  if (loading) return <div className="loader">Initializing Billing...</div>;
+  if (loading)
+    return <div className="loader">Initializing Billing...</div>;
   if (error) return <div className="loader error">{error}</div>;
 
   const { subtotal, gst, total } = calculateBill();
@@ -159,7 +162,7 @@ function OutForm() {
         .out-wrapper {
           min-height: 100vh;
           width: 100vw;
-          background-color: #f1f5f9; /* Soft Light Gray */
+          background-color: #0f172a;
           display: flex;
           justify-content: center;
           padding: 40px 20px;
@@ -174,14 +177,8 @@ function OutForm() {
           background: #ffffff;
           border-radius: 16px;
           overflow: hidden;
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
           border: 1px solid #e2e8f0;
-          animation: fadeIn 0.4s ease-out;
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
         }
 
         .card-header {
@@ -267,6 +264,11 @@ function OutForm() {
         .edit-link { font-size: 12px; color: #3b82f6; cursor: pointer; font-weight: bold; }
 
         .loader { height: 100vh; display: flex; align-items: center; justify-content: center; color: #2563eb; font-size: 18px; font-weight: 600; }
+
+        @media (max-width: 600px) {
+          .checkout-card { border-radius: 12px; padding: 20px; }
+          .receipt-body { padding: 20px; }
+        }
       `}</style>
 
       <div className="checkout-card">
@@ -275,12 +277,10 @@ function OutForm() {
         </div>
 
         <div className="receipt-body">
-          {/* BACK BUTTON */}
           <button className="btn-back" onClick={() => navigate(`/verify-edit/${bookingId}`)}>
             ← Back to Guest Records
           </button>
 
-          {/* LIVE TIME */}
           <div className="time-box">
             <div>
               <span style={{ fontSize: '10px', color: '#94a3b8', display: 'block', fontWeight: '800' }}>TIMESTAMP</span>
@@ -299,7 +299,6 @@ function OutForm() {
             </span>
           </div>
 
-          {/* GUEST INFO */}
           <div className="info-section">
             <div className="info-row">
               <span className="info-label">Guest</span>
@@ -315,7 +314,6 @@ function OutForm() {
             </div>
           </div>
 
-          {/* BILLING */}
           <div className="billing-table">
             <div className="info-row">
               <span className="info-label">Base Rate</span>
@@ -329,7 +327,6 @@ function OutForm() {
               <span className="info-label">Tax (GST 18%)</span>
               <span className="info-value">+ ₹{gst}</span>
             </div>
-
             <div className="total-row">
               <span style={{ fontWeight: '800', fontSize: '14px' }}>TOTAL DUE</span>
               <span className="total-price">₹{total}</span>

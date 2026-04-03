@@ -1,161 +1,128 @@
+import React from "react";
 import { Link } from "react-router-dom";
 
 function AdminDashboard() {
   return (
-    <div className="dashboard-wrapper">
+    <div className="wrapper">
+      <div className="card">
+        
+        <div className="header">
+          <h1>Admin Control Center</h1>
+          <p>
+            Welcome back. Manage your users, data, and reports from one central workspace.
+          </p>
+        </div>
+
+        <div className="grid">
+          <Link to="/admin/users" className="box">
+            <div className="icon">👥</div>
+            <h3>Manage Users</h3>
+            <p>Add, edit, or remove admin staff</p>
+          </Link>
+
+          <Link to="/admin/data" className="box">
+            <div className="icon">📄</div>
+            <h3>View Forms</h3>
+            <p>Review submitted guest data</p>
+          </Link>
+
+          <Link to="/admin/work-report" className="box">
+            <div className="icon">📊</div>
+            <h3>Work Reports</h3>
+            <p>Track employee progress</p>
+          </Link>
+        </div>
+
+      </div>
+
+      {/* CSS */}
       <style>{`
-        :root {
-          --primary: #4f46e5;
-          --primary-hover: #4338ca;
-          --bg-soft: #f8fafc;
-          --text-main: #1e293b;
-          --text-muted: #64748b;
-          --white: #ffffff;
+        body {
+          margin: 0;
+          font-family: Arial, sans-serif;
+          background: #f1f5f9;
         }
 
-        /* Full Page Reset & Centering */
-        .dashboard-wrapper {
+        .wrapper {
           min-height: 100vh;
-          width: 100vw;
-          margin: 0;
-          padding: 0;
           display: flex;
-          justify-content: center;
           align-items: center;
-          background-color: var(--bg-soft);
-          background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
-          background-size: 30px 30px; /* Subtle grid background */
-          font-family: 'Inter', system-ui, -apple-system, sans-serif;
+          justify-content: center;
+          padding: 20px;
         }
 
-        /* Main Center Card */
-        .dashboard-card {
-          width: 90%;
-          max-width: 900px;
-          background: var(--white);
-          padding: 50px 40px;
-          border-radius: 24px;
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-          border: 1px solid #e2e8f0;
-          text-align: center;
-        }
-
-        .header-content {
-          margin-bottom: 40px;
-        }
-
-        .header-content h2 {
-          font-size: 32px;
-          font-weight: 800;
-          color: var(--text-main);
-          margin: 0;
-          letter-spacing: -0.025em;
-        }
-
-        .header-content p {
-          color: var(--text-muted);
-          margin-top: 8px;
-          font-size: 16px;
-        }
-
-        /* Grid Layout for Links */
-        .nav-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-          gap: 20px;
+        .card {
           width: 100%;
+          max-width: 900px;
+          background: white;
+          padding: 30px;
+          border-radius: 20px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
-        .menu-item {
+        .header {
+          text-align: center;
+          margin-bottom: 30px;
+        }
+
+        .header h1 {
+          margin: 0;
+          font-size: 28px;
+          color: #1e293b;
+        }
+
+        .header p {
+          color: #64748b;
+          margin-top: 10px;
+        }
+
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 20px;
+        }
+
+        .box {
           text-decoration: none;
-          padding: 30px 20px;
-          background: var(--white);
-          border: 1px solid #f1f5f9;
-          border-radius: 18px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 12px;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          overflow: hidden;
-        }
-
-        .menu-item:hover {
-          border-color: var(--primary);
-          transform: translateY(-5px);
-          box-shadow: 0 12px 20px -10px rgba(79, 70, 229, 0.2);
-        }
-
-        /* Icon Placeholder Circle */
-        .icon-box {
-          width: 50px;
-          height: 50px;
-          background: #f0efff;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--primary);
-          font-size: 20px;
+          background: #f8fafc;
+          padding: 20px;
+          border-radius: 15px;
+          text-align: center;
           transition: 0.3s;
+          border: 1px solid #e2e8f0;
         }
 
-        .menu-item:hover .icon-box {
-          background: var(--primary);
-          color: white;
+        .box:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
-        .menu-text {
-          font-weight: 700;
-          font-size: 17px;
-          color: var(--text-main);
+        .icon {
+          font-size: 30px;
+          margin-bottom: 10px;
         }
 
-        .menu-desc {
-          font-size: 13px;
-          color: var(--text-muted);
-          font-weight: 400;
+        .box h3 {
+          margin: 5px 0;
+          color: #1e293b;
         }
 
-        /* Responsive Tweaks */
-        @media (max-width: 640px) {
-          .dashboard-card {
-            padding: 30px 20px;
-            width: 95%;
+        .box p {
+          font-size: 14px;
+          color: #64748b;
+        }
+
+        /* MOBILE FIX */
+        @media (max-width: 600px) {
+          .card {
+            padding: 20px;
           }
-          .nav-grid {
-            grid-template-columns: 1fr;
+
+          .header h1 {
+            font-size: 22px;
           }
         }
       `}</style>
-
-      <div className="dashboard-card">
-        <div className="header-content">
-          <h2>Admin Control Center</h2>
-          <p>Welcome back. What would you like to manage today?</p>
-        </div>
-
-        <nav className="nav-grid">
-          <Link to="/admin/users" className="menu-item">
-            <div className="icon-box">👥</div>
-            <span className="menu-text">Manage Users</span>
-            <span className="menu-desc">Add, edit or remove admin staff</span>
-          </Link>
-
-          <Link to="/admin/data" className="menu-item">
-            <div className="icon-box">📄</div>
-            <span className="menu-text">View Forms</span>
-            <span className="menu-desc">Review submitted guest data</span>
-          </Link>
-
-          <Link to="/admin/work-report" className="menu-item">
-            <div className="icon-box">📊</div>
-            <span className="menu-text">Work Reports</span>
-            <span className="menu-desc">Track employee daily progress</span>
-          </Link>
-        </nav>
-      </div>
     </div>
   );
 }

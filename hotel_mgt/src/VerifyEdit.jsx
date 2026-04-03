@@ -63,13 +63,23 @@ function VerifyEdit() {
     }
   };
 
-  if (loading) return <div style={{color: 'white', textAlign: 'center', marginTop: '50px'}}>Loading...</div>;
-  if (!booking) return <div style={{color: 'white', textAlign: 'center', marginTop: '50px'}}>Data not found.</div>;
+  if (loading)
+    return (
+      <div style={{ color: "white", textAlign: "center", marginTop: "50px" }}>
+        Loading...
+      </div>
+    );
+  if (!booking)
+    return (
+      <div style={{ color: "white", textAlign: "center", marginTop: "50px" }}>
+        Data not found.
+      </div>
+    );
 
   return (
     <div className="page-wrapper">
       <style>{`
-        body { margin: 0; padding: 0; background-color: #0f172a; }
+        body { margin: 0; padding: 0; background-color: #0f172a; font-family: 'Segoe UI', sans-serif; }
 
         .page-wrapper {
           display: flex;
@@ -77,129 +87,98 @@ function VerifyEdit() {
           width: 100vw;
           min-height: 100vh;
           background-color: #0f172a;
-          font-family: 'Inter', sans-serif;
-          padding: 40px 20px;
+          padding: 20px;
           box-sizing: border-box;
         }
 
         .container {
           width: 100%;
           max-width: 800px;
-          background: #ffffff;
-          border-radius: 16px;
-          padding: 35px;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-          height: fit-content;
+          background: #fff;
+          border-radius: 12px;
+          padding: 30px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
         .header-section {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 30px;
-          padding-bottom: 15px;
+          margin-bottom: 25px;
           border-bottom: 1px solid #f1f5f9;
+          padding-bottom: 10px;
         }
 
-        h2 { font-size: 24px; color: #1e293b; margin: 0; font-weight: 800; }
-
+        h2 { color: #2c3e50; margin: 0; font-weight: 700; font-size: 22px; }
         .btn-group { display: flex; gap: 10px; }
 
         button {
           padding: 10px 18px;
           border-radius: 8px;
-          font-weight: 700;
+          font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s;
           border: none;
+          transition: 0.2s;
         }
-
-        .btn-edit { background: #7c3aed; color: white; }
+        .btn-edit { background: #4a90e2; color: white; }
         .btn-save { background: #22c55e; color: white; }
-        .btn-cancel { background: #f1f5f9; color: #6d28d9; }
-        
-        .btn-checkout { 
-          width: 100%; 
-          background: transparent; 
-          border: 2px solid #7c3aed; 
-          color: #7c3aed;
-          margin-top: 20px;
+        .btn-cancel { background: #f0f2f5; color: #4b5563; border: 1px solid #d1d5db; }
+        .btn-checkout {
+          width: 100%;
+          background: transparent;
+          border: 2px solid #4a90e2;
+          color: #4a90e2;
+          margin-top: 15px;
           padding: 12px;
           font-weight: 700;
         }
-        .btn-checkout:hover { background: #7c3aed; color: white; }
+        .btn-checkout:hover { background: #4a90e2; color: white; }
 
         .card { 
-          border: 1px solid #ede9fe; 
+          border: 1px solid #edf2f7; 
           border-radius: 12px; 
-          padding: 25px; 
-          margin-bottom: 25px; 
-          background: #fafafa; 
+          padding: 20px; 
+          margin-bottom: 20px; 
+          background: #fdfdfd;
         }
 
-        .guest-title { color: #7c3aed; margin-top: 0; margin-bottom: 20px; font-weight: 800; }
+        .guest-title { color: #4a90e2; margin-top: 0; margin-bottom: 15px; font-weight: 700; }
 
-        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         .field { display: flex; flex-direction: column; }
-        
-        label { 
-          font-size: 11px; 
-          font-weight: 800; 
-          color: #94a3b8; 
-          text-transform: uppercase; 
-          margin-bottom: 6px; 
-        }
+        label { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px; }
 
-        /* VISIBILITY FIX: Dark text on white background */
         input {
-          padding: 12px;
-          border: 1px solid #e2e8f0;
+          padding: 10px;
+          border: 1px solid #d1d5db;
           border-radius: 8px;
-          background: #ffffff;
+          background: #fff;
           font-size: 14px;
           color: #1e293b !important;
         }
-
-        input:disabled { 
-          background: #f8fafc; 
-          color: #475569; 
-          border-color: #f1f5f9; 
-        }
+        input:disabled { background: #f1f5f9; color: #6b7280; border-color: #e2e8f0; }
 
         .docs-section { margin-top: 10px; }
-        .docs-grid { display: flex; gap: 15px; margin-top: 10px; flex-wrap: wrap; }
-        
-        .doc-thumb { width: 110px; cursor: pointer; text-align: center; }
-        .doc-thumb img { 
-          width: 100%; 
-          height: 100px; 
-          object-fit: cover; 
-          border-radius: 8px; 
-          border: 2px solid #ede9fe; 
-        }
-        .doc-thumb span { 
-          font-size: 10px; 
-          font-weight: 700; 
-          color: #7c3aed; 
-          display: block; 
-          margin-top: 6px; 
-        }
+        .docs-grid { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        .doc-thumb { width: 90px; cursor: pointer; text-align: center; }
+        .doc-thumb img { width: 100%; height: 80px; object-fit: cover; border-radius: 6px; border: 2px solid #e5e7eb; }
+        .doc-thumb span { font-size: 10px; font-weight: 600; color: #4a90e2; display: block; margin-top: 5px; }
 
-        .overlay { 
-          position: fixed; 
-          inset: 0; 
-          background: rgba(15, 23, 42, 0.9); 
-          display: flex; 
-          align-items: center; 
-          justify-content: center; 
-          z-index: 100; 
-          backdrop-filter: blur(5px);
+        .overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.85);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 100;
+          backdrop-filter: blur(4px);
         }
-        .overlay img { max-width: 90%; max-height: 80vh; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .overlay img { max-width: 90%; max-height: 80vh; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
 
         @media (max-width: 600px) {
           .input-grid { grid-template-columns: 1fr; }
+          .container { padding: 20px; border-radius: 0; }
         }
       `}</style>
 
@@ -208,7 +187,10 @@ function VerifyEdit() {
           <h2>Verify Details</h2>
           <div className="btn-group">
             {editMode && <button className="btn-save" onClick={handleSave}>Save Changes</button>}
-            <button className={editMode ? "btn-cancel" : "btn-edit"} onClick={() => setEditMode(!editMode)}>
+            <button
+              className={editMode ? "btn-cancel" : "btn-edit"}
+              onClick={() => setEditMode(!editMode)}
+            >
               {editMode ? "Cancel" : "Edit Details"}
             </button>
           </div>
@@ -217,7 +199,7 @@ function VerifyEdit() {
         {booking.entries.map((entry, idx) => (
           <div className="card" key={idx}>
             <h3 className="guest-title">Guest #{idx + 1}</h3>
-            
+
             <div className="input-grid">
               <div className="field">
                 <label>Full Name</label>

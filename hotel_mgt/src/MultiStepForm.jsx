@@ -12,11 +12,12 @@ function MultiStepForm() {
   const CLOUD_NAME = "dvykretlt";
   const UPLOAD_PRESET = "hotel_preset";
 
+  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  const [days, setDays] = useState([
-    { day: 1, guests: [{ name: "", age: "", email: "", gender: "", phones: [""] }] },
+  const [persons, setPersons] = useState([
+    { name: "", age: "", email: "", gender: "", phones: [""] },
   ]);
 
   const [arrival, setArrival] = useState({
@@ -29,7 +30,7 @@ function MultiStepForm() {
   const [stay, setStay] = useState({
     stayType: "",
     roomNo: "",
-    days: 1,
+    days: "",
   });
 
   const [documents, setDocuments] = useState({
@@ -54,56 +55,49 @@ function MultiStepForm() {
   const [currentField, setCurrentField] = useState(null);
   const [preview, setPreview] = useState(null);
 
-  /* ---------------- LOGIC ---------------- */
+  /* ---------------- HANDLERS ---------------- */
 
-  const handleGuestChange = (dayIdx, guestIdx, field, value) => {
-    const updated = [...days];
-    updated[dayIdx].guests[guestIdx][field] = value;
-    setDays(updated);
+  const handlePersonChange = (idx, field, value) => {
+    const updated = [...persons];
+    updated[idx][field] = value;
+    setPersons(updated);
   };
 
-  const handlePhoneChange = (dayIdx, guestIdx, phoneIdx, value) => {
-    const updated = [...days];
-    updated[dayIdx].guests[guestIdx].phones[phoneIdx] = value;
-    setDays(updated);
+  const handlePhoneChange = (pIdx, phoneIdx, value) => {
+    const updated = [...persons];
+    updated[pIdx].phones[phoneIdx] = value;
+    setPersons(updated);
   };
 
-  const addGuest = (dayIdx) => {
-    const updated = [...days];
-    updated[dayIdx].guests.push({ name: "", age: "", email: "", gender: "", phones: [""] });
-    setDays(updated);
+  const addPerson = () => {
+    setPersons([...persons, { name: "", age: "", email: "", gender: "", phones: [""] }]);
   };
 
-  const removeGuest = (dayIdx, guestIdx) => {
-    const updated = [...days];
-    updated[dayIdx].guests.splice(guestIdx, 1);
-    setDays(updated);
+  const removePerson = (idx) => {
+    setPersons(persons.filter((_, i) => i !== idx));
   };
 
-  const addPhone = (dayIdx, guestIdx) => {
-    const updated = [...days];
-    updated[dayIdx].guests[guestIdx].phones.push("");
-    setDays(updated);
+  const addPhone = (pIdx) => {
+    const updated = [...persons];
+    updated[pIdx].phones.push("");
+    setPersons(updated);
   };
 
-  const removePhone = (dayIdx, guestIdx, phoneIdx) => {
-    const updated = [...days];
-    updated[dayIdx].guests[guestIdx].phones.splice(phoneIdx, 1);
-    setDays(updated);
-  };
-
-  const addDay = () => {
-    const nextDay = days.length + 1;
-    setDays([...days, { day: nextDay, guests: [{ name: "", age: "", email: "", gender: "", phones: [""] }] }]);
-  };
-
-  const removeDay = (dayIdx) => {
-    const updated = [...days];
-    updated.splice(dayIdx, 1);
-    setDays(updated);
+  const removePhone = (pIdx, phoneIdx) => {
+    const updated = [...persons];
+    updated[pIdx].phones.splice(phoneIdx, 1);
+    setPersons(updated);
   };
 
   const handleFileSelect = (file, field) => {
+    if (!file) return;
+    setCurrentField(field);
+    setCropSrc(URL.createObjectURL(file));
+  };
+
+  // Logic to re-edit an already uploaded file
+  const handleEdit = (field) => {
+    const file = documents[field];
     if (!file) return;
     setCurrentField(field);
     setCropSrc(URL.createObjectURL(file));
@@ -115,8 +109,8 @@ function MultiStepForm() {
     const canvas = document.createElement("canvas");
     const scaleX = img.naturalWidth / img.width;
     const scaleY = img.naturalHeight / img.height;
-    canvas.width = crop.width * scaleX;
-    canvas.height = crop.height * scaleY;
+    canvas.width = crop.width;
+    canvas.height = crop.height;
     const ctx = canvas.getContext("2d");
 
     ctx.drawImage(
@@ -127,15 +121,15 @@ function MultiStepForm() {
       crop.height * scaleY,
       0,
       0,
-      crop.width * scaleX,
-      crop.height * scaleY
+      crop.width,
+      crop.height
     );
 
     canvas.toBlob((blob) => {
       const file = new File([blob], `${currentField}.jpg`, { type: "image/jpeg" });
       setDocuments((prev) => ({ ...prev, [currentField]: file }));
       setCropSrc(null);
-    }, "image/jpeg", 0.9);
+    });
   };
 
   const uploadToCloudinary = async (file) => {
@@ -147,7 +141,7 @@ function MultiStepForm() {
       const res = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, formData);
       return res.data.secure_url;
     } catch (err) {
-      console.error("Cloudinary Error:", err);
+      console.error("Cloudinary Upload Error:", err);
       return null;
     }
   };
@@ -157,7 +151,11 @@ function MultiStepForm() {
     setMessage("");
     try {
       const user = auth.currentUser;
-      if (!user) { alert("Login first"); setLoading(false); return; }
+      if (!user) {
+        alert("Please login first");
+        setLoading(false);
+        return;
+      }
 
       const urls = {};
       for (let key in documents) {
@@ -166,340 +164,453 @@ function MultiStepForm() {
         }
       }
 
-      const entries = [];
-      days.forEach((d) => {
-        d.guests.forEach((g, idx) => {
-          entries.push({
-            day: d.day,
-            serial: idx + 1,
-            ...g,
-            arrival,
-            stay,
-            ...urls,
-          });
-        });
-      });
-
       const docRef = await addDoc(collection(db, "bookings"), {
         userId: user.uid,
-        entries,
+        entries: persons.map((p, i) => ({
+          serial: i + 1,
+          ...p,
+          arrival,
+          stay,
+          ...urls,
+        })),
         status: "active",
         createdAt: serverTimestamp(),
       });
 
-      setMessage("✅ Booking Saved Successfully!");
+      setMessage("✅ Booking Successful!");
       setTimeout(() => navigate(`/verify-edit/${docRef.id}`), 1500);
     } catch (err) {
-      console.error(err);
-      setMessage("❌ Submission Failed");
+      console.error("Firestore Submission Error:", err);
+      setMessage("❌ Submission Failed. Please try again.");
     }
     setLoading(false);
   };
 
-  const hasFiles = Object.values(documents).some((f) => f !== null);
-
   return (
-    <div className="page-wrapper">
-      <style>{`
-        :root {
-          --primary: #6366f1;
-          --primary-hover: #4f46e5;
-          --bg: #f3f4f6;
-          --card-bg: #ffffff;
-          --text-main: #1e293b;
-          --text-muted: #64748b;
-          --border: #e2e8f0;
-          --danger: #ef4444;
-          --success: #10b981;
-        }
+    <div className="form-wrapper">
+     <style>{`
+/* ===== ROOT ===== */
+.form-wrapper {
+  background-color: #f4f7f9;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 10px;
+  font-family: 'Segoe UI', sans-serif;
+}
 
-        body { 
-          margin: 0; 
-          background-color: var(--bg); 
-          color: var(--text-main); 
-          font-family: 'Inter', system-ui, -apple-system, sans-serif; 
-        }
-        
-        .page-wrapper { 
-          display: flex; 
-          flex-direction: column;
-          align-items: center; 
-          justify-content: flex-start;
-          min-height: 100vh; 
-          width: 100%;
-          padding: 40px 20px; 
-          box-sizing: border-box; 
-        }
-        
-        .container { 
-          width: 100%; 
-          max-width: 800px; 
-          background: var(--card-bg); 
-          border-radius: 24px; 
-          padding: 40px; 
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-          box-sizing: border-box;
-        }
-        
-        h2 { font-size: 32px; font-weight: 800; margin: 0 0 8px 0; color: var(--text-main); letter-spacing: -1px; text-align: center; }
-        .subtitle { color: var(--text-muted); margin-bottom: 40px; font-size: 16px; text-align: center; }
-        
-        h3 { 
-          font-size: 14px; 
-          text-transform: uppercase; 
-          letter-spacing: 1.5px; 
-          color: var(--primary); 
-          margin: 45px 0 20px; 
-          font-weight: 700; 
-          display: flex; 
-          align-items: center; 
-          gap: 15px; 
-        }
-        h3::after { content: ""; flex: 1; height: 1px; background: var(--border); }
-        
-        .card { border: 1px solid var(--border); border-radius: 16px; padding: 25px; margin-bottom: 20px; background: #fafafa; }
-        
-        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .field { display: flex; flex-direction: column; gap: 8px; }
-        
-        label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
-        
-        input, select { 
-          padding: 14px; 
-          border: 1.5px solid var(--border); 
-          border-radius: 12px; 
-          font-size: 15px; 
-          outline: none; 
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-          background: #fff;
-          color: #1e293b;
-        }
-        
-        input:focus, select:focus { 
-          border-color: var(--primary); 
-          box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); 
-        }
+/* ===== MAIN CONTAINER ===== */
+.container {
+  background: #fff;
+  width: 100%;
+  max-width: 650px;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
 
-        .btn-primary { 
-          background: var(--primary); 
-          color: white; 
-          padding: 16px; 
-          border-radius: 14px; 
-          border: none; 
-          font-weight: 700; 
-          cursor: pointer; 
-          transition: 0.3s; 
-          width: 100%; 
-          font-size: 16px; 
-          box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
-        }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3); }
-        .btn-primary:active { transform: translateY(0); }
-        .btn-primary:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; }
+/* ===== HEADINGS ===== */
+h2 {
+  color: #2c3e50;
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
 
-        .btn-secondary { background: #fff; color: var(--text-main); padding: 10px 18px; border-radius: 10px; border: 1px solid var(--border); font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+h3 {
+  color: #34495e;
+  border-bottom: 2px solid #f1f1f1;
+  padding-bottom: 8px;
+  margin-top: 25px;
+  margin-bottom: 15px;
+}
 
-        .docs-container { display: flex; flex-direction: column; gap: 12px; }
-        .doc-row { 
-          display: flex; 
-          align-items: center; 
-          justify-content: space-between; 
-          padding: 16px 20px; 
-          border: 1px solid var(--border); 
-          border-radius: 16px; 
-          background: #fff;
-          transition: 0.2s;
-        }
-        .doc-row:hover { border-color: var(--primary); background: #f5f3ff; }
-        .doc-info { display: flex; align-items: center; gap: 15px; }
-        .doc-dot { width: 10px; height: 10px; border-radius: 50%; background: #e2e8f0; border: 2px solid #fff; outline: 1px solid #cbd5e1; }
-        .doc-dot.active { background: var(--success); outline-color: var(--success); }
-        .doc-name { font-size: 15px; font-weight: 600; text-transform: capitalize; color: #334155; }
-        .doc-btns { display: flex; gap: 10px; }
-        
-        .upload-icon-btn { 
-          width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--border); 
-          display: flex; align-items: center; justify-content: center; cursor: pointer; background: white; transition: 0.2s;
-        }
-        .upload-icon-btn:hover { border-color: var(--primary); color: var(--primary); transform: scale(1.05); }
+/* ===== CARD ===== */
+.guest-card {
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #edf2f7;
+}
 
-        .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-        .modal-content { background: white; padding: 30px; border-radius: 24px; max-width: 500px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
-        
-        .status-msg { padding: 18px; border-radius: 14px; margin-bottom: 30px; font-weight: 600; text-align: center; background: #f0fdf4; color: var(--success); border: 1px solid #bbf7d0; }
+/* ===== INPUTS ===== */
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin: 6px 0 12px 0;
+  border: 1px solid #dcdfe6;
+  border-radius: 10px;
+  font-size: 14px;
+}
 
-        @media (max-width: 768px) {
-          .page-wrapper { padding: 0; }
-          .container { border-radius: 0; padding: 25px; }
-          .input-grid { grid-template-columns: 1fr; gap: 15px; }
-          .doc-row { flex-direction: column; align-items: flex-start; gap: 15px; }
-          .doc-btns { width: 100%; justify-content: flex-end; }
-        }
-      `}</style>
+input:focus, select:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74,144,226,0.15);
+  outline: none;
+}
+
+/* ===== FLEX FIX ===== */
+.phone-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  cursor: pointer;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: #4a90e2;
+  color: white;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-danger {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+/* ===== GRID ===== */
+.doc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+/* ===== STEP INDICATOR ===== */
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.step {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.step.active {
+  background: #4a90e2;
+  color: white;
+}
+
+/* ===== UPLOAD ===== */
+.upload-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+  border: 1px dashed #cbd5e1;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/* ===== EDIT BUTTON ===== */
+.edit-btn {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+}
+
+/* ===== MODAL ===== */
+.modal {
+  position: fixed;
+  top:0;
+  left:0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  z-index: 1000;
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width: 600px) {
+
+  .form-wrapper {
+    padding: 0;
+    background: #fff;
+  }
+
+  .container {
+    padding: 15px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .doc-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guest-card {
+    padding: 12px;
+  }
+
+  .step-indicator {
+    gap: 10px;
+  }
+
+  .btn {
+    padding: 12px;
+    font-size: 13px;
+  }
+
+  input, select {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  /* IMPORTANT FIX */
+  div[style*="flex"] {
+    flex-wrap: wrap !important;
+  }
+
+}
+
+/* EXTRA SMALL DEVICES */
+@media (max-width: 400px) {
+  .container {
+    padding: 10px;
+  }
+}
+`}</style>
 
       <div className="container">
-        <h2>Room Booking</h2>
-        <p className="subtitle">Securely provide guest details and documents for verification.</p>
-        
-        {message && <div className="status-msg">{message}</div>}
+        <div className="step-indicator">
+          <div className={`step ${step >= 1 ? "active" : ""}`}>1</div>
+          <div className={`step ${step >= 2 ? "active" : ""}`}>2</div>
+          <div className={`step ${step >= 3 ? "active" : ""}`}>3</div>
+        </div>
 
-        {days.map((d, dayIdx) => (
-          <div key={dayIdx}>
-            <h3>Day {d.day} Guests</h3>
-            {d.guests.map((g, guestIdx) => (
-              <div className="card" key={guestIdx}>
-                <div style={{display:'flex', justifyContent:'space-between', marginBottom:'20px'}}>
-                  <span style={{fontWeight:800, color: 'var(--text-muted)'}}>GUEST {guestIdx + 1}</span>
-                  {d.guests.length > 1 && (
-                    <button style={{color:'var(--danger)', border:'none', background:'none', cursor:'pointer', fontWeight:600}} onClick={() => removeGuest(dayIdx, guestIdx)}>Remove</button>
-                  )}
+        <h2>Hotel Registration</h2>
+        {message && (
+          <div style={{
+            padding: '12px', 
+            borderRadius: '8px', 
+            textAlign: 'center', 
+            marginBottom: '20px',
+            backgroundColor: message.includes('✅') ? '#f0fdf4' : '#fef2f2',
+            color: message.includes('✅') ? '#166534' : '#991b1b',
+            border: `1px solid ${message.includes('✅') ? '#bbf7d0' : '#fecaca'}`
+          }}>
+            {message}
+          </div>
+        )}
+
+        {/* STEP 1: GUESTS */}
+        {step === 1 && (
+          <div>
+            <h3>Guest Information</h3>
+            {persons.map((p, idx) => (
+              <div key={idx} className="guest-card">
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom: '10px'}}>
+                   <strong style={{color: '#4a90e2'}}>Guest #{idx + 1}</strong>
+                   {persons.length > 1 && <button className="btn btn-danger" onClick={() => removePerson(idx)}>Remove</button>}
                 </div>
-
-                <div className="input-grid">
-                  <div className="field">
-                    <label>Full Name</label>
-                    <input placeholder="Enter full name" value={g.name} onChange={(e) => handleGuestChange(dayIdx, guestIdx, "name", e.target.value)} />
+                
+                <label style={{fontSize: '13px', fontWeight: '600'}}>Full Name</label>
+                <input placeholder="Enter name" value={p.name} onChange={(e) => handlePersonChange(idx, "name", e.target.value)} />
+                
+                <div style={{display:'flex', gap:'15px'}}>
+                  <div style={{flex: 1}}>
+                    <label style={{fontSize: '13px', fontWeight: '600'}}>Age</label>
+                    <input type="number" placeholder="0" value={p.age} onChange={(e) => handlePersonChange(idx, "age", e.target.value)} />
                   </div>
-                  <div className="field">
-                    <label>Age</label>
-                    <input type="number" placeholder="Years" value={g.age} onChange={(e) => handleGuestChange(dayIdx, guestIdx, "age", e.target.value)} />
-                  </div>
-                </div>
-
-                <div className="input-grid">
-                  <div className="field">
-                    <label>Email Address</label>
-                    <input type="email" placeholder="example@mail.com" value={g.email} onChange={(e) => handleGuestChange(dayIdx, guestIdx, "email", e.target.value)} />
-                  </div>
-                  <div className="field">
-                    <label>Gender</label>
-                    <select value={g.gender} onChange={(e) => handleGuestChange(dayIdx, guestIdx, "gender", e.target.value)}>
-                      <option value="">Select Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
+                  <div style={{flex: 1}}>
+                    <label style={{fontSize: '13px', fontWeight: '600'}}>Gender</label>
+                    <select value={p.gender} onChange={(e) => handlePersonChange(idx, "gender", e.target.value)}>
+                      <option value="">Select</option>
+                      <option>Male</option>
+                      <option>Female</option>
+                      <option>Other</option>
                     </select>
                   </div>
                 </div>
 
-                <label style={{display: 'block', marginBottom: '10px'}}>Contact Information</label>
-                {g.phones.map((ph, phoneIdx) => (
-                  <div key={phoneIdx} style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-                    <input style={{flex:1}} placeholder="Phone Number" value={ph} onChange={(e) => handlePhoneChange(dayIdx, guestIdx, phoneIdx, e.target.value)} />
-                    {g.phones.length > 1 && (
-                      <button type="button" style={{color: 'var(--danger)', background: '#fff', border: '1px solid #fee2e2', padding: '0 15px', borderRadius: '12px', cursor: 'pointer'}} onClick={() => removePhone(dayIdx, guestIdx, phoneIdx)}>✕</button>
-                    )}
+                <label style={{fontSize: '13px', fontWeight: '600'}}>Email Address</label>
+                <input type="email" placeholder="email@example.com" value={p.email} onChange={(e) => handlePersonChange(idx, "email", e.target.value)} />
+                
+                <label style={{fontSize: '13px', fontWeight: '600'}}>Phone Number(s)</label>
+                {p.phones.map((ph, pIdx) => (
+                  <div key={pIdx} className="phone-row">
+                    <input placeholder="Mobile number" value={ph} onChange={(e) => handlePhoneChange(idx, pIdx, e.target.value)} />
+                    {p.phones.length > 1 && <button className="btn btn-danger" style={{marginTop:'8px'}} onClick={() => removePhone(idx, pIdx)}>✕</button>}
                   </div>
                 ))}
-                <button type="button" className="btn-secondary" onClick={() => addPhone(dayIdx, guestIdx)}>+ Add Secondary Phone</button>
+                <button className="btn btn-secondary" style={{padding:'6px 12px', fontSize:'12px'}} onClick={() => addPhone(idx)}>+ Add Another Phone</button>
               </div>
             ))}
+            <button className="btn btn-secondary" style={{width: '100%'}} onClick={addPerson}>+ Add Another Guest</button>
+            <button className="btn btn-primary" onClick={() => setStep(2)}>Continue to Travel Details</button>
+          </div>
+        )}
 
-            <div style={{display: 'flex', gap: '15px', marginBottom: '40px'}}>
-              <button type="button" className="btn-secondary" style={{flex: 1, padding: '12px'}} onClick={() => addGuest(dayIdx)}>+ Add Another Guest</button>
-              {days.length > 1 && (
-                <button type="button" style={{color: 'var(--danger)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600}} onClick={() => removeDay(dayIdx)}>Delete Day {d.day}</button>
-              )}
+        {/* STEP 2: TRAVEL & STAY */}
+        {step === 2 && (
+          <div>
+            <h3>Arrival & Stay Details</h3>
+            <div className="doc-grid">
+               <div>
+                  <label style={{fontSize: '13px', fontWeight: '600'}}>Arrival Date</label>
+                  <input type="date" value={arrival.arrivalDate} onChange={(e) => setArrival({ ...arrival, arrivalDate: e.target.value })} />
+               </div>
+               <div>
+                  <label style={{fontSize: '13px', fontWeight: '600'}}>Arrival Time</label>
+                  <input type="time" value={arrival.arrivalTime} onChange={(e) => setArrival({ ...arrival, arrivalTime: e.target.value })} />
+               </div>
             </div>
-          </div>
-        ))}
-        
-        <button type="button" className="btn-secondary" style={{width: '100%', border: '2px dashed var(--border)', background: 'transparent', padding: '20px', fontSize: '15px'}} onClick={addDay}>
-          + Schedule for Another Day
-        </button>
-
-        <h3>Stay Information</h3>
-        <div className="input-grid">
-          <div className="field">
-            <label>Check-in Date</label>
-            <input type="date" value={arrival.arrivalDate} onChange={(e) => setArrival({ ...arrival, arrivalDate: e.target.value })} />
-          </div>
-          <div className="field">
-            <label>Check-in Time</label>
-            <input type="time" value={arrival.arrivalTime} onChange={(e) => setArrival({ ...arrival, arrivalTime: e.target.value })} />
-          </div>
-        </div>
-        <div className="input-grid">
-          <div className="field">
-            <label>Nationality</label>
+            
+            <label style={{fontSize: '13px', fontWeight: '600'}}>Nationality</label>
             <input placeholder="e.g. Indian" value={arrival.nationality} onChange={(e) => setArrival({ ...arrival, nationality: e.target.value })} />
+            
+            <label style={{fontSize: '13px', fontWeight: '600'}}>Arriving From</label>
+            <input placeholder="City / State" value={arrival.location} onChange={(e) => setArrival({ ...arrival, location: e.target.value })} />
+            
+            <div className="doc-grid">
+               <div>
+                 <label style={{fontSize: '13px', fontWeight: '600'}}>Stay Type</label>
+                 <input placeholder="e.g. Personal" value={stay.stayType} onChange={(e) => setStay({ ...stay, stayType: e.target.value })} />
+               </div>
+               <div>
+                 <label style={{fontSize: '13px', fontWeight: '600'}}>Room Number</label>
+                 <input placeholder="Assign No" value={stay.roomNo} onChange={(e) => setStay({ ...stay, roomNo: e.target.value })} />
+               </div>
+            </div>
+            
+            <label style={{fontSize: '13px', fontWeight: '600'}}>Duration (Days)</label>
+            <input type="number" placeholder="1" value={stay.days} onChange={(e) => setStay({ ...stay, days: e.target.value })} />
+            
+            <div style={{display:'flex', gap:'15px'}}>
+              <button className="btn btn-secondary" style={{flex:1}} onClick={() => setStep(1)}>Back</button>
+              <button className="btn btn-primary" style={{flex:2, marginTop: '10px'}} onClick={() => setStep(3)}>Next: Documents</button>
+            </div>
           </div>
-          <div className="field">
-            <label>Traveling From</label>
-            <input placeholder="City Name" value={arrival.location} onChange={(e) => setArrival({ ...arrival, location: e.target.value })} />
-          </div>
-        </div>
+        )}
 
-        <div className="input-grid" style={{gridTemplateColumns: '2fr 1fr 1fr'}}>
-          <div className="field">
-            <label>Room Category</label>
-            <input placeholder="Standard/Deluxe/Suite" value={stay.stayType} onChange={(e) => setStay({ ...stay, stayType: e.target.value })} />
-          </div>
-          <div className="field">
-            <label>Room No</label>
-            <input placeholder="Ex. 204" value={stay.roomNo} onChange={(e) => setStay({ ...stay, roomNo: e.target.value })} />
-          </div>
-          <div className="field">
-            <label>Stay Days</label>
-            <input type="number" value={stay.days} onChange={(e) => setStay({ ...stay, days: e.target.value })} />
-          </div>
-        </div>
+        {/* STEP 3: DOCUMENTS */}
+        {step === 3 && (
+          <div>
+            <h3>Identity Documents</h3>
+            <p style={{fontSize:'13px', color:'#6b7280', marginBottom:'20px'}}>Upload identification for the primary guest.</p>
+            <div className="doc-grid">
+              {Object.keys(documents).map((field) => (
+                <div key={field} style={{background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px dashed #cbd5e1'}}>
+                  <label style={{fontSize:'12px', fontWeight:'700', textTransform:'uppercase', color: '#475569'}}>
+                    {field.replace(/([A-Z])/g, ' $1')}
+                  </label>
+                  
+                  <label className="upload-label">
+                    <span>📷 {documents[field] ? "Replace Image" : "Capture or Upload"}</span>
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      capture="environment"
+                      onChange={(e) => handleFileSelect(e.target.files[0], field)} 
+                      style={{display: 'none'}} 
+                    />
+                  </label>
 
-        <h3>KYC Verification</h3>
-        <div className="docs-container">
-          {Object.keys(documents).map((field) => (
-            <div key={field} className="doc-row">
-              <div className="doc-info">
-                <div className={`doc-dot ${documents[field] ? 'active' : ''}`}></div>
-                <span className="doc-name">{field.replace(/([A-Z])/g, ' $1')}</span>
-              </div>
-              
-              <div className="doc-btns">
-                {documents[field] && (
-                  <button type="button" className="btn-secondary" style={{padding: '8px 12px'}} onClick={() => setPreview(URL.createObjectURL(documents[field]))}>👁 Preview</button>
-                )}
-                <button type="button" className="upload-icon-btn" onClick={() => document.getElementById(`file-${field}`).click()}>📷</button>
-                <button type="button" className="upload-icon-btn" onClick={() => document.getElementById(`file-${field}`).click()}>📁</button>
-                <input type="file" accept="image/*" capture="environment" id={`file-${field}`} style={{display: 'none'}} onChange={(e) => handleFileSelect(e.target.files[0], field)} />
+                  {documents[field] && (
+                    <div style={{display:'flex', alignItems:'center', justifyContent: 'space-between', marginTop: '8px'}}>
+                        <span style={{color:'#10b981', fontSize:'11px', fontWeight:'600'}}>✓ Ready</span>
+                        <div style={{display:'flex', gap:'5px'}}>
+                          <button 
+                            className="edit-btn" 
+                            onClick={() => setPreview(URL.createObjectURL(documents[field]))}
+                          >👁️ View</button>
+                          <button 
+                            className="edit-btn" 
+                            style={{background: '#fff7ed', color: '#c2410c', borderColor: '#ffedd5'}}
+                            onClick={() => handleEdit(field)}
+                          >✏️ Edit</button>
+                        </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            
+            <div style={{display:'flex', gap:'15px', marginTop: '20px'}}>
+              <button className="btn btn-secondary" style={{flex:1}} onClick={() => setStep(2)}>Back</button>
+              <button 
+                className="btn btn-primary" 
+                style={{flex:2, marginTop: '10px'}} 
+                onClick={submitForm} 
+                disabled={loading}
+              >
+                {loading ? "Saving Booking..." : "Finish & Submit"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* CROP MODAL */}
+        {cropSrc && (
+          <div className="modal">
+            <div style={{background:'#fff', padding:'25px', borderRadius:'12px', maxWidth:'500px', width: '90%'}}>
+              <h4 style={{marginTop: 0}}>Adjust Image</h4>
+              <ReactCrop crop={crop} onChange={(c) => setCrop(c)}>
+                <img id="crop-img" src={cropSrc} alt="crop" style={{maxWidth:'100%', borderRadius:'4px'}} />
+              </ReactCrop>
+              <div style={{display: 'flex', gap: '10px', marginTop: '20px'}}>
+                <button className="btn btn-secondary" style={{flex: 1}} onClick={() => setCropSrc(null)}>Cancel</button>
+                <button className="btn btn-primary" style={{flex: 1, marginTop: 0}} onClick={handleCropComplete}>Save Selection</button>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
 
-        <button 
-          className="btn-primary" 
-          style={{marginTop: '50px'}} 
-          onClick={submitForm} 
-          disabled={!hasFiles || loading}
-        >
-          {loading ? "Processing..." : "Confirm & Save Booking"}
-        </button>
+        {/* PREVIEW MODAL */}
+        {preview && (
+          <div className="modal" onClick={() => setPreview(null)}>
+            <div style={{position:'relative'}}>
+               <img src={preview} style={{maxWidth:'90vw', maxHeight: '80vh', borderRadius:'12px', boxShadow: '0 20px 50px rgba(0,0,0,0.5)'}} alt="preview" />
+               <p style={{color:'white', textAlign:'center', marginTop:'15px', fontWeight: '600'}}>Tap anywhere to close</p>
+            </div>
+          </div>
+        )}
       </div>
-
-      {cropSrc && (
-        <div className="modal">
-          <div className="modal-content">
-            <h4 style={{marginTop: 0, marginBottom: '20px', fontSize: '18px'}}>Finalize Document Crop</h4>
-            <ReactCrop crop={crop} onChange={(c) => setCrop(c)}>
-              <img id="crop-img" src={cropSrc} alt="crop" style={{maxWidth: '100%', borderRadius: '12px'}} />
-            </ReactCrop>
-            <div style={{display: 'flex', gap: '15px', marginTop: '25px'}}>
-              <button type="button" className="btn-secondary" style={{flex: 1}} onClick={() => setCropSrc(null)}>Cancel</button>
-              <button type="button" className="btn-primary" style={{flex: 2, padding: '12px'}} onClick={handleCropComplete}>Save Image</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {preview && (
-        <div className="modal" onClick={() => setPreview(null)}>
-          <div style={{position: 'relative', maxWidth: '85%'}}>
-             <img src={preview} style={{width: '100%', borderRadius: '20px', boxShadow: '0 30px 60px -12px rgba(0,0,0,0.5)'}} alt="preview" />
-             <div style={{color: 'white', position:'absolute', bottom: '-40px', left: '50%', transform: 'translateX(-50%)', fontWeight: 600, fontSize: '14px'}}>Click anywhere to close</div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

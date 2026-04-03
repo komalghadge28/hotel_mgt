@@ -11,10 +11,7 @@ function EmployeeWorkReport() {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const q = query(
-          collection(db, "employeeOut"),
-          orderBy("createdAt", "desc")
-        );
+        const q = query(collection(db, "employeeOut"), orderBy("createdAt", "desc"));
         const snapshot = await getDocs(q);
         const data = snapshot.docs.map((doc) => ({
           id: doc.id,
@@ -30,65 +27,190 @@ function EmployeeWorkReport() {
   }, []);
 
   if (loading) return (
-    <div style={styles.loaderContainer}>
-      <div style={styles.loader}>Loading Work Reports...</div>
+    <div className="loaderContainer">
+      <div className="loader">Loading Work Reports...</div>
     </div>
   );
 
   return (
-    <div style={styles.pageWrapper}>
-      <div style={styles.container}>
-        
-        {/* Header Section */}
-        <div style={styles.headerSection}>
-          <button style={styles.backBtn} onClick={() => navigate("/admin/dashboard")}>
-            ← Dashboard
-          </button>
-          <h2 style={styles.title}>Employee Work Report</h2>
-          <p style={styles.subtitle}>Review daily clock-in/out logs and activity</p>
+    <div className="pageWrapper">
+      <style>{`
+        .pageWrapper {
+          background-color: #f1f5f9;
+          min-height: 100vh;
+          padding: 20px 10px;
+          font-family: 'Inter', sans-serif;
+          box-sizing: border-box;
+        }
+        .container {
+          max-width: 1000px;
+          margin: 0 auto;
+        }
+        .headerSection {
+          margin-bottom: 25px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .backBtn {
+          align-self: flex-start;
+          background-color: #fff;
+          border: 1px solid #e2e8f0;
+          padding: 8px 14px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: 600;
+          color: #64748b;
+          font-size: 13px;
+          transition: 0.2s;
+        }
+        .backBtn:hover { background-color: #f1f5f9; }
+        .title {
+          font-size: 24px;
+          font-weight: 800;
+          color: #0f172a;
+          margin: 10px 0 0 0;
+        }
+        .subtitle {
+          color: #64748b;
+          font-size: 14px;
+          margin: 0;
+        }
+        .tableCard {
+          background-color: #fff;
+          border-radius: 12px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+          border: 1px solid #e2e8f0;
+          overflow: hidden;
+        }
+        .tableResponsive {
+          overflow-x: auto;
+          width: 100%;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          min-width: 700px;
+        }
+        th {
+          background-color: #f8fafc;
+          padding: 14px 20px;
+          font-size: 12px;
+          font-weight: 600;
+          color: #475569;
+          text-align: left;
+          text-transform: uppercase;
+          border-bottom: 2px solid #f1f5f9;
+        }
+        td {
+          padding: 16px 20px;
+          font-size: 14px;
+          color: #1e293b;
+        }
+        .tr {
+          border-bottom: 1px solid #f1f5f9;
+        }
+        .nameText {
+          font-weight: 600;
+          color: #1e293b;
+        }
+        .timeContainer {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .timeArrow { color: #94a3b8; font-size: 12px; }
+        .timeBadgeIn {
+          background-color: #f0fdf4;
+          color: #15803d;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-weight: 600;
+          font-size: 12px;
+          border: 1px solid #dcfce7;
+        }
+        .timeBadgeOut {
+          background-color: #fef2f2;
+          color: #b91c1c;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-weight: 600;
+          font-size: 12px;
+          border: 1px solid #fee2e2;
+        }
+        .viewBtn {
+          color: #4f46e5;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 13px;
+          transition: 0.2s;
+        }
+        .viewBtn:hover { text-decoration: underline; }
+        .tdMuted { font-size: 12px; color: #94a3b8; padding: 16px 20px; }
+        .emptyState {
+          padding: 60px 20px;
+          text-align: center;
+          color: #94a3b8;
+        }
+        .loaderContainer {
+          height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background: #f8fafc;
+        }
+        .loader { color: #64748b; font-weight: 500; }
+
+        @media (max-width: 600px) {
+          .title { font-size: 20px; }
+          .subtitle { font-size: 13px; }
+          th, td { padding: 10px 12px; font-size: 13px; }
+        }
+      `}</style>
+
+      <div className="container">
+        <div className="headerSection">
+          <button className="backBtn" onClick={() => navigate("/admin/dashboard")}>← Dashboard</button>
+          <h2 className="title">Employee Work Report</h2>
+          <p className="subtitle">Daily activity logs and time tracking</p>
         </div>
 
-        {/* Content Section */}
-        <div style={styles.tableCard}>
+        <div className="tableCard">
           {records.length === 0 ? (
-            <div style={styles.emptyState}>
+            <div className="emptyState">
               <span style={{ fontSize: "48px" }}>📁</span>
-              <p>No employee records found in the database.</p>
+              <p>No employee records found.</p>
             </div>
           ) : (
-            <div style={styles.tableResponsive}>
-              <table style={styles.table}>
+            <div className="tableResponsive">
+              <table>
                 <thead>
                   <tr>
-                    <th style={styles.th}>Employee Name</th>
-                    <th style={styles.th}>Date</th>
-                    <th style={styles.th}>In Time</th>
-                    <th style={styles.th}>Out Time</th>
-                    <th style={styles.th}>Photo</th>
-                    <th style={styles.th}>Log Time</th>
+                    <th>Employee</th>
+                    <th>Date</th>
+                    <th>In/Out</th>
+                    <th>Evidence</th>
+                    <th>Logged At</th>
                   </tr>
                 </thead>
                 <tbody>
                   {records.map((record) => (
-                    <tr key={record.id} style={styles.tr}>
-                      <td style={{ ...styles.td, fontWeight: "600", color: "#1e293b" }}>
-                        {record.name}
+                    <tr key={record.id} className="tr">
+                      <td><div className="nameText">{record.name}</div></td>
+                      <td>{record.date}</td>
+                      <td>
+                        <div className="timeContainer">
+                          <span className="timeBadgeIn">{record.inTime}</span>
+                          <span className="timeArrow">→</span>
+                          <span className="timeBadgeOut">{record.outTime}</span>
+                        </div>
                       </td>
-                      <td style={styles.td}>{record.date}</td>
-                      <td style={styles.td}>
-                        <span style={styles.timeBadgeIn}>{record.inTime}</span>
-                      </td>
-                      <td style={styles.td}>
-                        <span style={styles.timeBadgeOut}>{record.outTime}</span>
-                      </td>
-                      <td style={styles.td}>
+                      <td>
                         {record.photoUrl ? (
-                          <a href={record.photoUrl} target="_blank" rel="noreferrer" style={styles.viewBtn}>
-                            View Photo
-                          </a>
-                        ) : "—"}
+                          <a href={record.photoUrl} target="_blank" rel="noreferrer" className="viewBtn">View Photo</a>
+                        ) : <span style={{ color: '#cbd5e1' }}>No Photo</span>}
                       </td>
-                      <td style={styles.tdMuted}>
+                      <td className="tdMuted">
                         {record.createdAt?.seconds
                           ? new Date(record.createdAt.seconds * 1000).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })
                           : "N/A"}
@@ -104,138 +226,5 @@ function EmployeeWorkReport() {
     </div>
   );
 }
-
-const styles = {
-  pageWrapper: {
-    backgroundColor: "#f8fafc",
-    minHeight: "100vh",
-    width: "100vw",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    padding: "40px 20px",
-    boxSizing: "border-box",
-    fontFamily: "'Inter', sans-serif",
-    position: "absolute",
-    left: 0,
-    top: 0,
-  },
-  container: {
-    width: "100%",
-    maxWidth: "1100px", // Wider for data tables
-    margin: "0 auto",
-  },
-  headerSection: {
-    textAlign: "center",
-    marginBottom: "40px",
-    position: "relative",
-  },
-  backBtn: {
-    position: "absolute",
-    left: "0",
-    top: "0",
-    backgroundColor: "#ffffff",
-    border: "1px solid #e2e8f0",
-    padding: "10px 18px",
-    borderRadius: "10px",
-    cursor: "pointer",
-    fontWeight: "600",
-    color: "#64748b",
-    transition: "all 0.2s",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-  },
-  title: {
-    fontSize: "32px",
-    fontWeight: "800",
-    color: "#1e293b",
-    margin: "0 0 8px 0",
-    letterSpacing: "-0.5px",
-  },
-  subtitle: {
-    color: "#64748b",
-    margin: 0,
-    fontSize: "16px",
-  },
-  tableCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: "20px",
-    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)",
-    border: "1px solid #e2e8f0",
-    overflow: "hidden",
-  },
-  tableResponsive: {
-    overflowX: "auto",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    textAlign: "left",
-  },
-  th: {
-    backgroundColor: "#f8fafc",
-    padding: "18px 24px",
-    fontSize: "13px",
-    fontWeight: "700",
-    color: "#64748b",
-    textTransform: "uppercase",
-    letterSpacing: "0.05em",
-    borderBottom: "1px solid #e2e8f0",
-  },
-  tr: {
-    borderBottom: "1px solid #f1f5f9",
-    transition: "background-color 0.2s",
-  },
-  td: {
-    padding: "20px 24px",
-    fontSize: "15px",
-    color: "#475569",
-  },
-  tdMuted: {
-    padding: "20px 24px",
-    fontSize: "13px",
-    color: "#94a3b8",
-  },
-  timeBadgeIn: {
-    backgroundColor: "#dcfce7",
-    color: "#166534",
-    padding: "4px 10px",
-    borderRadius: "6px",
-    fontWeight: "600",
-    fontSize: "13px",
-  },
-  timeBadgeOut: {
-    backgroundColor: "#fee2e2",
-    color: "#991b1b",
-    padding: "4px 10px",
-    borderRadius: "6px",
-    fontWeight: "600",
-    fontSize: "13px",
-  },
-  viewBtn: {
-    color: "#4f46e5",
-    textDecoration: "none",
-    fontWeight: "600",
-    fontSize: "14px",
-    borderBottom: "1px solid transparent",
-    transition: "0.2s",
-  },
-  emptyState: {
-    padding: "80px 20px",
-    textAlign: "center",
-    color: "#94a3b8",
-  },
-  loaderContainer: {
-    height: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f8fafc",
-  },
-  loader: {
-    fontSize: "18px",
-    color: "#64748b",
-    fontWeight: "500",
-  }
-};
 
 export default EmployeeWorkReport;

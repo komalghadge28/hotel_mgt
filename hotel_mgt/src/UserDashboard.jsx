@@ -21,74 +21,74 @@ function UserDashboard() {
   return (
     <div className="dashboard-wrapper">
       <style>{`
+        /* Wrapper */
         .dashboard-wrapper {
           min-height: 100vh;
           width: 100vw;
-          background: radial-gradient(circle at top left, #1e293b, #0f172a);
+          background: linear-gradient(135deg, #667eea, #764ba2);
           display: flex;
           justify-content: center;
-          align-items: center;
+          align-items: flex-start;
           font-family: 'Inter', system-ui, sans-serif;
-          padding: 20px;
+          padding: 40px 15px;
           box-sizing: border-box;
-          color: #f8fafc;
+          color: #f1f5f9;
         }
 
         .dashboard-container {
           width: 100%;
-          max-width: 1000px;
+          max-width: 1100px;
           text-align: center;
         }
 
+        /* Header */
         .welcome-header {
-          margin-bottom: 50px;
+          margin-bottom: 40px;
           animation: fadeInDown 0.6s ease-out;
         }
 
         .welcome-header h1 {
           font-size: 3rem;
-          font-weight: 800;
+          font-weight: 900;
           letter-spacing: -1px;
-          background: linear-gradient(to right, #00b894, #00cec9, #3b82f6);
+          background: linear-gradient(to right, #ffe259, #ffa751, #ff6f61);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           margin-bottom: 20px;
         }
 
         .logout-pill {
-          background: rgba(214, 48, 49, 0.1);
-          color: #ff7675;
-          border: 1px solid #d63031;
-          padding: 10px 24px;
+          background: #fff;
+          color: #764ba2;
+          border: none;
+          padding: 12px 28px;
           border-radius: 50px;
-          cursor: pointer;
           font-weight: 700;
           font-size: 14px;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          transition: 0.3s;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .logout-pill:hover {
-          background: #d63031;
+          background: #764ba2;
           color: white;
-          box-shadow: 0 0 25px rgba(214, 48, 49, 0.4);
           transform: scale(1.05);
+          box-shadow: 0 8px 25px rgba(0,0,0,0.3);
         }
 
+        /* Menu Grid */
         .menu-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 30px;
-          margin-top: 20px;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 25px;
         }
 
         .menu-card {
-          background: rgba(30, 41, 59, 0.6);
+          background: rgba(255,255,255,0.1);
           backdrop-filter: blur(15px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          padding: 50px 30px;
-          border-radius: 28px;
+          border-radius: 20px;
+          padding: 45px 25px;
           cursor: pointer;
           transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
           display: flex;
@@ -96,57 +96,69 @@ function UserDashboard() {
           align-items: center;
           justify-content: center;
           position: relative;
+          border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .menu-card:hover {
-          transform: translateY(-12px);
-          background: rgba(51, 65, 85, 0.9);
-          border-color: #3b82f6;
-          box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+          transform: translateY(-10px);
+          background: rgba(255,255,255,0.15);
+          border-color: #ffe259;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.4);
         }
 
         .icon-box {
-          font-size: 45px;
-          margin-bottom: 25px;
-          background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.05));
-          width: 90px;
-          height: 90px;
+          font-size: 50px;
+          margin-bottom: 20px;
+          width: 100px;
+          height: 100px;
           display: flex;
           align-items: center;
           justify-content: center;
           border-radius: 24px;
-          box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
+          background: rgba(255,255,255,0.1);
+          box-shadow: inset 0 0 12px rgba(255,255,255,0.1);
+          transition: all 0.3s ease;
         }
 
         .menu-card:hover .icon-box {
-          background: #3b82f6;
-          color: white;
-          transform: scale(1.1) rotate(-5deg);
+          background: #ffe259;
+          color: #764ba2;
+          transform: scale(1.15) rotate(-5deg);
         }
 
         .menu-card h3 {
           margin: 0;
-          font-size: 1.6rem;
+          font-size: 1.5rem;
           font-weight: 700;
           color: #f1f5f9;
         }
 
         .menu-card p {
-          font-size: 0.95rem;
-          color: #94a3b8;
-          margin-top: 12px;
+          font-size: 0.9rem;
+          color: #d1d5db;
+          margin-top: 10px;
           line-height: 1.5;
         }
 
+        /* Animations */
         @keyframes fadeInDown {
-          from { opacity: 0; transform: translateY(-40px); }
+          from { opacity: 0; transform: translateY(-30px); }
           to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Mobile */
         @media (max-width: 768px) {
           .welcome-header h1 { font-size: 2.2rem; }
-          .menu-grid { grid-template-columns: 1fr; }
-          .menu-card { padding: 40px 20px; }
+          .menu-card { padding: 35px 20px; }
+          .menu-grid { gap: 20px; }
+        }
+
+        @media (max-width: 480px) {
+          .welcome-header { margin-bottom: 30px; }
+          .menu-card { padding: 30px 15px; }
+          .icon-box { width: 80px; height: 80px; font-size: 40px; }
+          .menu-card h3 { font-size: 1.3rem; }
+          .menu-card p { font-size: 0.85rem; }
         }
       `}</style>
 
@@ -159,25 +171,22 @@ function UserDashboard() {
         </header>
 
         <div className="menu-grid">
-          {/* ROOM BOOKING */}
           <div className="menu-card" onClick={() => navigate("/room-booking")}>
             <div className="icon-box">🔑</div>
             <h3>Room Booking</h3>
-            <p>Initiate new guest registrations, assign rooms, and collect documentation.</p>
+            <p>Register guests, assign rooms, and collect documents efficiently.</p>
           </div>
 
-          {/* VERIFY / EDIT */}
           <div className="menu-card" onClick={() => navigate("/verify-edit")}>
             <div className="icon-box">🛡️</div>
             <h3>Verify / Edit</h3>
-            <p>Access active booking records to update guest details or modify stay duration.</p>
+            <p>Access booking records to update guest details or stay duration.</p>
           </div>
 
-          {/* EMPLOYEE FINAL OUT */}
           <div className="menu-card" onClick={() => navigate("/employee-out")}>
             <div className="icon-box">🚪</div>
             <h3>Final Day Out</h3>
-            <p>Finalize employee departures and generate complete administrative exit logs.</p>
+            <p>Complete employee exit logs and generate admin clearance records.</p>
           </div>
         </div>
       </div>

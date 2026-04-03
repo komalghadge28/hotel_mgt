@@ -27,10 +27,9 @@ function EmployeeOutForm() {
     if (!file) return null;
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "hotel_preset"); // Ensure this matches your MultiStepForm preset
+    formData.append("upload_preset", "hotel_preset");
 
     try {
-      // Switched to direct Cloudinary upload to match your working MultiStepForm logic
       const res = await axios.post(
         `https://api.cloudinary.com/v1_1/dvykretlt/image/upload`,
         formData
@@ -48,8 +47,8 @@ function EmployeeOutForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.photo) {
-        alert("Please fill in the name and select a photo.");
-        return;
+      alert("Please fill in the name and select a photo.");
+      return;
     }
 
     try {
@@ -78,104 +77,99 @@ function EmployeeOutForm() {
   return (
     <div className="employee-wrapper">
       <style>{`
-        body { margin: 0; padding: 0; background-color: #0f172a; }
-
         .employee-wrapper {
           min-height: 100vh;
           width: 100vw;
-          background: #0f172a;
+          background: linear-gradient(135deg, #667eea, #764ba2);
           display: flex;
           justify-content: center;
           align-items: center;
-          padding: 40px 20px;
+          padding: 20px;
           box-sizing: border-box;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Roboto', sans-serif;
         }
 
         .employee-card {
           width: 100%;
-          max-width: 500px;
-          background: #ffffff;
-          border-radius: 24px;
-          padding: 40px;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
-          animation: slideUp 0.5s ease-out;
+          max-width: 480px;
+          background: #f9fafb;
+          border-radius: 20px;
+          padding: 35px 25px;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+          transition: transform 0.2s ease;
         }
-
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
+        .employee-card:hover { transform: translateY(-4px); }
 
         .back-btn {
           background: transparent;
-          border: 1px solid #ddd6fe;
-          color: #7c3aed;
-          padding: 8px 16px;
-          border-radius: 10px;
-          font-size: 13px;
+          border: none;
+          color: #6b5b95;
+          font-size: 14px;
           font-weight: 600;
           cursor: pointer;
-          margin-bottom: 25px;
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          transition: 0.2s;
+          margin-bottom: 20px;
         }
+        .back-btn:hover { text-decoration: underline; }
 
-        .back-btn:hover { background: #f5f3ff; border-color: #7c3aed; }
+        .header-area { text-align: center; margin-bottom: 25px; }
+        .header-area h2 { font-size: 1.8rem; color: #333; margin: 0; font-weight: 800; }
+        .header-area p { color: #6b5b95; font-size: 0.95rem; margin-top: 6px; font-weight: 500; }
 
-        .header-area { text-align: center; margin-bottom: 30px; }
-        .header-area h2 { font-size: 1.6rem; color: #1e293b; margin: 0; font-weight: 800; }
-        .header-area p { color: #7c3aed; font-size: 0.9rem; margin-top: 5px; font-weight: 600; }
-
-        .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
+        .form-group { margin-bottom: 18px; display: flex; flex-direction: column; }
         .form-group label {
-          font-size: 11px;
-          font-weight: 800;
-          color: #94a3b8;
-          text-transform: uppercase;
-          margin-bottom: 6px;
+          font-size: 12px;
+          font-weight: 700;
+          color: #4b5563;
+          margin-bottom: 5px;
         }
-
         .input-style {
           width: 100%;
-          padding: 12px;
-          border-radius: 10px;
-          border: 1px solid #e2e8f0;
-          background: #ffffff;
+          padding: 11px 12px;
+          border-radius: 8px;
+          border: 1px solid #cbd5e1;
           font-size: 14px;
-          color: #1e293b !important; /* Critical Fix for Visibility */
-          box-sizing: border-box;
+          color: #1f2937;
+          background: #ffffff;
         }
-
         .input-style:focus {
           outline: none;
-          border-color: #7c3aed;
-          box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+          border-color: #6b5b95;
+          box-shadow: 0 0 0 3px rgba(107, 91, 149, 0.1);
+        }
+
+        .time-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
         }
 
         .submit-btn {
           width: 100%;
-          padding: 16px;
-          background: #7c3aed;
+          padding: 15px;
+          background: #6b5b95;
           color: white;
           border: none;
-          border-radius: 12px;
+          border-radius: 10px;
           font-weight: 700;
-          font-size: 16px;
+          font-size: 15px;
           cursor: pointer;
-          transition: 0.2s;
           margin-top: 10px;
+          transition: 0.2s ease;
         }
-
-        .submit-btn:hover { background: #6d28d9; }
-        .submit-btn:disabled { background: #c4b5fd; cursor: not-allowed; }
+        .submit-btn:hover { background: #594881; }
+        .submit-btn:disabled { background: #b9aedf; cursor: not-allowed; }
 
         input[type="file"] {
           padding: 10px;
-          background: #fafafa;
-          border: 1px dashed #ddd6fe;
+          border-radius: 8px;
+          border: 1px dashed #cbd5e1;
+          background: #f3f4f6;
+        }
+
+        @media (max-width: 500px) {
+          .employee-card { padding: 25px 20px; border-radius: 16px; }
+          .header-area h2 { font-size: 1.5rem; }
+          .header-area p { font-size: 0.85rem; }
         }
       `}</style>
 
@@ -212,7 +206,7 @@ function EmployeeOutForm() {
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+          <div className="time-grid">
             <div className="form-group">
               <label>In Time</label>
               <input
