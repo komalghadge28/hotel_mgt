@@ -543,12 +543,12 @@ input:focus, select:focus {
                   <label className="upload-label">
                     <span>📷 {documents[field] ? "Replace Image" : "Capture or Upload"}</span>
                     <input 
-                      type="file" 
-                      accept="image/*"
-                      capture="environment"
-                      onChange={(e) => handleFileSelect(e.target.files[0], field)} 
-                      style={{display: 'none'}} 
-                    />
+  type="file" 
+  accept="image/*"
+  capture={false}
+  onChange={(e) => handleFileSelect(e.target.files[0], field)} 
+  style={{display: 'none'}} 
+/>
                   </label>
 
                   {documents[field] && (
